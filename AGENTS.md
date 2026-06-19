@@ -5,7 +5,7 @@
 ## Project Identity
 
 ```yaml
-platform: web
+platform: web   # web | app
 ```
 
 | 값 | 스택 예시 |
@@ -18,30 +18,18 @@ platform: web
 - **이름**: infinity-world-map
 - **스택**: Next.js 15 · React 19 · TypeScript · Tailwind CSS 4 · Zustand · D3-geo
 
-React Native/Expo로 전환 시 위 `platform` 값만 `app`으로 변경한다.
-
 ---
 
 ## Wiki Baseline
 
-작업 시작 전 아래 위키를 읽고, **선언된 platform에 맞는 문서만** 참조한다.
+### 읽기 순서 (작업 시작 전 필수)
 
-### Wiki Root
+> 아래 파일을 반드시 직접 열어서 읽는다. 경로만 인지하는 것으로 갈음하지 않는다.
 
-```
-/Users/hoi-seok/Documents/Obsidian Vault/frontend-llm-wiki/wiki/
-```
+1. 아래 경로의 파일을 열어 읽는다:
+   `/Users/hoi-seok/Documents/Obsidian Vault/frontend-llm-wiki/wiki/index.md`
 
-### 읽기 순서 (작업 시작 전)
-
-1. **index.md** — 전체 목차·플랫폼 태그 확인
-   ```
-   /Users/hoi-seok/Documents/Obsidian Vault/frontend-llm-wiki/wiki/index.md
-   ```
-2. **platform 필터 적용** — 위 `Project Identity`의 `platform` 값에 맞는 문서만 참조
-3. **관련 문서** — index에서 작업 주제와 연결된 문서를 추가로 읽는다
-
-### Platform 필터 규칙
+2. 위 `platform` 값에 맞는 문서만 추가로 읽는다:
 
 | 위키 태그 | `web` | `app` |
 |---|---|---|
@@ -50,9 +38,7 @@ React Native/Expo로 전환 시 위 `platform` 값만 `app`으로 변경한다.
 | `[앱]` | ❌ | ✅ |
 | `[웹·앱]` | ✅ | ✅ |
 
-- **항상 포함**: `[공통]` 문서 (아키텍처·원칙·컨벤션·결정 등)
-- **platform 전용**: 선언된 platform 태그 문서만 추가 참조
-- **제외**: 반대 platform 전용 문서 (예: `web` 프로젝트 → `[앱]` 전용 문서 무시)
+3. 작업 주제와 연결된 문서를 index에서 찾아 추가로 읽는다.
 
 ### 참조 예시 (`platform: web`)
 
@@ -63,8 +49,12 @@ React Native/Expo로 전환 시 위 `platform` 값만 `app`으로 변경한다.
 ❌ React Native, NativeWind, Expo SDK 54 Version Pinning   [앱]
 ```
 
-### 운영 참고
+### 응답 규칙 (검증용)
 
-- 위키 개요: `wiki/overview.md`
-- 작업 이력: `wiki/log.md`
-- 위키 AI 운영 매뉴얼: 위키 루트 `CLAUDE.md` · `AGENTS.md`
+작업 결과물 하단에 참고한 위키 문서를 반드시 명시한다:
+
+```
+<!-- wiki-ref: 컨벤션/Commit Convention.md, 원칙/Readability.md -->
+```
+
+명시하지 않은 경우, 위키를 읽지 않은 것으로 간주한다.
