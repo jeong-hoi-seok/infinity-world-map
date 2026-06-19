@@ -1,51 +1,21 @@
 "use client";
 
+import type { RefObject } from "react";
 import { useEffect, useRef } from "react";
-import { createPathRenderer } from "@/lib/geo/projection";
-import { coastline, countryBorders, countryFeatures, koreaFeature } from "@/lib/geo/world-data";
-import { MAP_COLORS } from "@/lib/map/colors";
-import { drawTiledWorld } from "@/lib/map/tiling";
-import { useMapStore } from "@/store/map-store";
+import { KEYBOARD_PAN_STEP, WHEEL_ZOOM_SENSITIVITY, ZOOM_STEP_FACTOR } from "../config/map-config";
+import { MAP_COLORS } from "../lib/colors";
+import { drawWorldTile } from "../lib/draw-world-tile";
+import { useMapStore } from "../model/map-store";
+import { drawTiledWorld } from "../model/map-transform";
 
-/** 휠 줌 민감도 (Figma와 유사한 체감) */
-const WHEEL_ZOOM_SENSITIVITY = 0.01;
-
-const drawWorldTile = (context: CanvasRenderingContext2D): void => {
-  const renderPath = createPathRenderer(context);
-
-  // 육지 채우기
-  context.beginPath();
-  renderPath(countryFeatures);
-  context.fillStyle = MAP_COLORS.land;
-  context.fill();
-
-  // 대한민국 하이라이트
-  if (koreaFeature) {
-    context.beginPath();
-    renderPath(koreaFeature);
-    context.fillStyle = MAP_COLORS.koreaHighlight;
-    context.fill();
-  }
-
-  // 국가 간 국경선
-  context.beginPath();
-  renderPath(countryBorders);
-  context.strokeStyle = MAP_COLORS.border;
-  context.lineWidth = 0.75;
-  context.stroke();
-
-  // 해안선
-  context.beginPath();
-  renderPath(coastline);
-  context.strokeStyle = MAP_COLORS.coastline;
-  context.lineWidth = 0.5;
-  context.stroke();
+type PointerPosition = {
+  x: number;
+  y: number;
 };
 
-export const WorldMapCanvas = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export const useWorldMapCanvas = (canvasRef: RefObject<HTMLCanvasElement | null>) => {
   const isDraggingRef = useRef(false);
-  const lastPointerRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const lastPointerRef = useRef<PointerPosition>({ x: 0, y: 0 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -54,7 +24,7 @@ export const WorldMapCanvas = () => {
     const context = canvas.getContext("2d");
     if (!context) return;
 
-    const { setViewport, panBy, zoomAt } = useMapStore.getState();
+    const { setViewport, panBy, zoomAt, zoomBy } = useMapStore.getState();
 
     let cssWidth = 0;
     let cssHeight = 0;
@@ -110,6 +80,7 @@ export const WorldMapCanvas = () => {
 
     const handlePointerMove = (event: PointerEvent): void => {
       if (!isDraggingRef.current) return;
+
       const deltaX = event.clientX - lastPointerRef.current.x;
       const deltaY = event.clientY - lastPointerRef.current.y;
       lastPointerRef.current = { x: event.clientX, y: event.clientY };
@@ -122,6 +93,39 @@ export const WorldMapCanvas = () => {
       canvas.style.cursor = "grab";
     };
 
+    const handleKeyDown = (event: KeyboardEvent): void => {
+      switch (event.key) {
+        case "ArrowLeft":
+          event.preventDefault();
+          panBy(KEYBOARD_PAN_STEP, 0);
+          break;
+        case "ArrowRight":
+          event.preventDefault();
+          panBy(-KEYBOARD_PAN_STEP, 0);
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          panBy(0, KEYBOARD_PAN_STEP);
+          break;
+        case "ArrowDown":
+          event.preventDefault();
+          panBy(0, -KEYBOARD_PAN_STEP);
+          break;
+        case "+":
+        case "=":
+          event.preventDefault();
+          zoomBy(ZOOM_STEP_FACTOR);
+          break;
+        case "-":
+        case "_":
+          event.preventDefault();
+          zoomBy(1 / ZOOM_STEP_FACTOR);
+          break;
+        default:
+          break;
+      }
+    };
+
     const resizeObserver = new ResizeObserver(resizeCanvas);
     resizeObserver.observe(canvas);
     resizeCanvas();
@@ -131,6 +135,7 @@ export const WorldMapCanvas = () => {
     canvas.addEventListener("pointermove", handlePointerMove);
     canvas.addEventListener("pointerup", handlePointerUp);
     canvas.addEventListener("pointercancel", handlePointerUp);
+    canvas.addEventListener("keydown", handleKeyDown);
 
     animationFrameId = requestAnimationFrame(renderFrame);
 
@@ -142,15 +147,7 @@ export const WorldMapCanvas = () => {
       canvas.removeEventListener("pointermove", handlePointerMove);
       canvas.removeEventListener("pointerup", handlePointerUp);
       canvas.removeEventListener("pointercancel", handlePointerUp);
+      canvas.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="block h-full w-full cursor-grab touch-none select-none"
-      aria-label="무한 반복 세계 지도"
-      role="img"
-    />
-  );
+  }, [canvasRef]);
 };

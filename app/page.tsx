@@ -1,5 +1,4 @@
-import { MapControls } from "@/components/world-map/MapControls";
-import { WorldMapCanvas } from "@/components/world-map/WorldMapCanvas";
+import { MapControls, WorldMapCanvas } from "@/features/world-map";
 
 export default function Home() {
   return (

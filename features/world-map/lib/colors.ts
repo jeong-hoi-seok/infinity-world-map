@@ -1,6 +1,4 @@
-/**
- * Google Analytics 실시간 지도 색감 팔레트
- */
+/** Google Analytics 실시간 지도 색감 팔레트 */
 export const MAP_COLORS = {
   /** 바다 / 배경 */
   ocean: "#ffffff",
